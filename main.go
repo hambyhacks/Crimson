@@ -11,7 +11,11 @@ import (
 	"os/signal"
 	"time"
 
+	kitlogger "github.com/go-kit/kit/log"
+	"github.com/go-kit/log/level"
+
 	api "github.com/hambyhacks/CrimsonIMS/api/routes"
+	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
 	_ "github.com/lib/pq"
 )
 
@@ -28,6 +32,7 @@ type config struct {
 
 func main() {
 	var cfg config
+	var svc prodsrv.ProductService
 
 	flag.IntVar(&cfg.port, "port", 9000, "API Server port.")
 	flag.StringVar(&cfg.env, "env", "dev", "Environment (dev|staging|prod)")
@@ -39,19 +44,28 @@ func main() {
 
 	// Set logger to write msg to stdout.
 	logger := log.New(os.Stdout, "User-API ", log.LstdFlags|log.Ldate|log.Ltime)
+	klogger := kitlogger.NewLogfmtLogger(os.Stderr)
 
 	// Open DB connection
-	db, err := openDB(cfg)
-	if err != nil {
-		logger.Fatal(err)
-	}
+	db := openDB(cfg)
 	defer db.Close()
 	logger.Println("DB connection pool established")
+
+	svc = &prodsrv.ProdServ{}
+	{
+		repo, err := prodsrv.NewProdRepo(db, klogger)
+		if err != nil {
+			level.Error(klogger).Log("exit", err)
+			os.Exit(1)
+		}
+		defer db.Close()
+		svc = prodsrv.NewProdServ(repo, klogger)
+	}
 
 	// Declare http.Server struct
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      api.NewHTTPHandler(),
+		Handler:      api.NewHTTPHandler(svc),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  time.Minute,
@@ -84,11 +98,11 @@ func main() {
 
 }
 
-func openDB(cfg config) (*sql.DB, error) {
+func openDB(cfg config) *sql.DB {
 	// Open up PostgreSQL using DSN specified in the environment variable
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	// Set configuration of DB
@@ -101,7 +115,7 @@ func openDB(cfg config) (*sql.DB, error) {
 	// Set duration and check for errors
 	duration, err := time.ParseDuration(cfg.db.maxIdleTime)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	db.SetConnMaxIdleTime(duration)
@@ -111,7 +125,7 @@ func openDB(cfg config) (*sql.DB, error) {
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	return db, nil
+	return db
 }

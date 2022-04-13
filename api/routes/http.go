@@ -10,8 +10,7 @@ import (
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
 )
 
-func NewHTTPHandler() *chi.Mux {
-	var svc prodsrv.ProductService
+func NewHTTPHandler(svc prodsrv.ProductService) *chi.Mux {
 	r := chi.NewRouter()
 	// HTTP handlers
 	AddProductHandler := transport.NewServer(

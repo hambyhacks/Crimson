@@ -108,7 +108,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 // GetProductByID implements ProductsRepository
 func (r *prodRepo) GetProductByID(ctx context.Context, id int) (interface{}, error) {
 	prod := models.Products{}
-	q := `SELECT id, product_name, price, sku, stock_count WHERE id = $1`
+	q := `SELECT id, product_name, price, sku, stock_count FROM products WHERE id = $1`
 
 	err := r.db.QueryRowContext(ctx, q, id).Scan(&prod.ID, &prod.Name, &prod.Price, &prod.SKU, &prod.StockCount)
 	if err != nil {

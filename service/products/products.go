@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
+	"log"
 	"time"
 
-	"github.com/go-kit/kit/log"
+	klog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 
 	"github.com/hambyhacks/CrimsonIMS/app/models"
@@ -19,21 +20,22 @@ type ProductService interface {
 }
 
 // Implementation of Product Service interface
-type prodServ struct {
+type ProdServ struct {
 	repo   ProductsRepository
-	logger log.Logger
+	logger klog.Logger
 }
 
-func NewProdServ(repo ProductsRepository, logger log.Logger) ProductService {
-	return &prodServ{
+func NewProdServ(repo ProductsRepository, logger klog.Logger) ProductService {
+	return &ProdServ{
 		repo:   repo,
 		logger: logger,
 	}
 }
 
 // AddProduct implements ProductService
-func (p *prodServ) AddProduct(ctx context.Context, products models.Products) (string, error) {
-	logger := log.With(p.logger, "method", "add product")
+func (p *ProdServ) AddProduct(ctx context.Context, products models.Products) (string, error) {
+	log.Println("[i] Endpoint: /v1/admin/add")
+	logger := klog.With(p.logger, "method", "add product")
 	msg := "successfully added product"
 	prodDetails := models.Products{
 		ID:           products.ID,
@@ -54,8 +56,9 @@ func (p *prodServ) AddProduct(ctx context.Context, products models.Products) (st
 }
 
 // DeleteProduct implements ProductService
-func (p *prodServ) DeleteProduct(ctx context.Context, id int) (string, error) {
-	logger := log.With(p.logger, "method", "delete product")
+func (p *ProdServ) DeleteProduct(ctx context.Context, id int) (string, error) {
+	log.Println("[i] Endpoint: /v1/admin/delete/:id")
+	logger := klog.With(p.logger, "method", "delete product")
 	msg, err := p.repo.DeleteProduct(ctx, id)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
@@ -65,11 +68,12 @@ func (p *prodServ) DeleteProduct(ctx context.Context, id int) (string, error) {
 }
 
 // GetAllProducts implements ProductService
-func (p *prodServ) GetAllProducts(ctx context.Context) (interface{}, error) {
-	logger := log.With(p.logger, "method", "get all products")
+func (p *ProdServ) GetAllProducts(ctx context.Context) (interface{}, error) {
+	log.Println("[i] Endpoint: /v1/admin/products")
+	logger := klog.With(p.logger, "method", "get all products")
 	var product interface{}
 
-	product, err := p.GetAllProducts(ctx)
+	product, err := p.repo.GetAllProducts(ctx)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
 		return nil, err
@@ -78,8 +82,9 @@ func (p *prodServ) GetAllProducts(ctx context.Context) (interface{}, error) {
 }
 
 // GetProductByID implements ProductService
-func (p *prodServ) GetProductByID(ctx context.Context, id int) (interface{}, error) {
-	logger := log.With(p.logger, "method", "get product by id")
+func (p *ProdServ) GetProductByID(ctx context.Context, id int) (interface{}, error) {
+	log.Println("[i] Endpoint: /v1/admin/products/:id")
+	logger := klog.With(p.logger, "method", "get product by id")
 	var product interface{}
 
 	product, err := p.repo.GetProductByID(ctx, id)
@@ -91,8 +96,9 @@ func (p *prodServ) GetProductByID(ctx context.Context, id int) (interface{}, err
 }
 
 // UpdateProduct implements ProductService
-func (p *prodServ) UpdateProduct(ctx context.Context, products models.Products) (string, error) {
-	logger := log.With(p.logger, "method", "update product")
+func (p *ProdServ) UpdateProduct(ctx context.Context, products models.Products) (string, error) {
+	log.Println("[i] Endpoint: /v1/admin/update/:id")
+	logger := klog.With(p.logger, "method", "update product")
 	msg := "successfully updated product details"
 
 	prodDetails := models.Products{
