@@ -12,10 +12,10 @@ import (
 
 func DecodeAddProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req requests.AddProductRequest
-	if err := json.NewDecoder(r.Body).Decode(&req.Product); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&req.Product)
+	if err != nil {
 		return nil, err
 	}
-
 	return req, nil
 }
 

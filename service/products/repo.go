@@ -83,7 +83,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	var res []interface{}
 	q := `SELECT 
 		  id, product_name, price, sku, stock_count 
-		  FROM products`
+		  FROM products ORDER BY id DESC`
 
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {

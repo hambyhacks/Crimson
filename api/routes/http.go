@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	transport "github.com/go-kit/kit/transport/http"
+	"github.com/hambyhacks/CrimsonIMS/api/middlewares"
 	app "github.com/hambyhacks/CrimsonIMS/app/interface"
 	endpoints "github.com/hambyhacks/CrimsonIMS/endpoints/products"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
@@ -63,7 +64,7 @@ func NewHTTPHandler(svc prodsrv.ProductService) *chi.Mux {
 				r.Method(http.MethodGet, "/products/{id:[0-9]+}", GetProductByIDHandler)
 				r.Method(http.MethodDelete, "/products/delete/{id:[0-9]+}", DeleteProductHandler)
 				r.Group(func(r chi.Router) {
-					// Add validation middleware here
+					r.Use(middlewares.MiddlewareValidateJSON)
 					r.Method(http.MethodPost, "/products/add", AddProductHandler)
 					r.Method(http.MethodPatch, "/products/update/{id:[0-9]+}", UpdateProductHandler)
 				})
