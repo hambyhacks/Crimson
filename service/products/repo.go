@@ -60,7 +60,7 @@ func (r *prodRepo) AddProduct(ctx context.Context, products models.Products) err
 // DeleteProduct implements ProductsRepository
 func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 	q := `DELETE FROM products where id = $1`
-	res, err := r.db.ExecContext(ctx, q)
+	res, err := r.db.ExecContext(ctx, q, id)
 	if err != nil {
 		return "unable to process request", err
 	}

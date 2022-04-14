@@ -46,7 +46,6 @@ func (p *ProdServ) AddProduct(ctx context.Context, products models.Products) (st
 		DateReceived: time.Now().UTC(),
 		StockCount:   products.StockCount,
 	}
-
 	err := p.repo.AddProduct(ctx, prodDetails)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)

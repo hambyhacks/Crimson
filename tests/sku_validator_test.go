@@ -15,7 +15,7 @@ func TestSKUValidation(t *testing.T) {
 		StockCount: 3,
 	}
 
-	err := p.Validate()
+	err := models.Validate(p)
 	if err != nil {
 		t.Fatal(err)
 	}

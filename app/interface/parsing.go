@@ -8,11 +8,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/hambyhacks/CrimsonIMS/app/interface/requests"
+	"github.com/hambyhacks/CrimsonIMS/app/models"
 )
 
 func DecodeAddProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req requests.AddProductRequest
 	err := json.NewDecoder(r.Body).Decode(&req.Product)
+	if err != nil {
+		return nil, err
+	}
+	err = models.Validate(req.Product)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +57,12 @@ func DecodeDeleteProductRequest(_ context.Context, r *http.Request) (interface{}
 
 func DecodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req requests.UpdateProductRequest
-	if err := json.NewDecoder(r.Body).Decode(&req.Product); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&req.Product)
+	if err != nil {
+		return nil, err
+	}
+	err = models.Validate(req.Product)
+	if err != nil {
 		return nil, err
 	}
 	return req, nil

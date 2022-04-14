@@ -6,7 +6,7 @@ import (
 	"github.com/go-playground/validator"
 )
 
-func (p *Products) Validate() error {
+func Validate(p Products) error {
 	validate := validator.New()
 	validate.RegisterValidation("sku", SKUValidation)
 	return validate.Struct(p)
