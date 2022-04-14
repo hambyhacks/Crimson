@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/hambyhacks/CrimsonIMS/app/interface/requests"
-	"github.com/hambyhacks/CrimsonIMS/app/models"
+	service "github.com/hambyhacks/CrimsonIMS/service/products"
 )
 
 func DecodeAddProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -17,7 +17,7 @@ func DecodeAddProductRequest(_ context.Context, r *http.Request) (interface{}, e
 	if err != nil {
 		return nil, err
 	}
-	err = models.Validate(req.Product)
+	err = service.Validate(req.Product)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func DecodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}
 	if err != nil {
 		return nil, err
 	}
-	err = models.Validate(req.Product)
+	err = service.Validate(req.Product)
 	if err != nil {
 		return nil, err
 	}

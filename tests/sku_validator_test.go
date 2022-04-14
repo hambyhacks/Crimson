@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hambyhacks/CrimsonIMS/app/models"
+	service "github.com/hambyhacks/CrimsonIMS/service/products"
 )
 
 func TestSKUValidation(t *testing.T) {
@@ -15,7 +16,7 @@ func TestSKUValidation(t *testing.T) {
 		StockCount: 3,
 	}
 
-	err := models.Validate(p)
+	err := service.Validate(p)
 	if err != nil {
 		t.Fatal(err)
 	}

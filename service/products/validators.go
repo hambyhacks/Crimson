@@ -1,12 +1,13 @@
-package models
+package service
 
 import (
 	"regexp"
 
 	"github.com/go-playground/validator"
+	"github.com/hambyhacks/CrimsonIMS/app/models"
 )
 
-func Validate(p Products) error {
+func Validate(p models.Products) error {
 	validate := validator.New()
 	validate.RegisterValidation("sku", SKUValidation)
 	return validate.Struct(p)
