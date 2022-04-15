@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/hambyhacks/CrimsonIMS/app/interface/requests"
-	service "github.com/hambyhacks/CrimsonIMS/service/products"
+	"github.com/hambyhacks/CrimsonIMS/app/interface/products/requests"
+	service "github.com/hambyhacks/CrimsonIMS/service"
 )
 
 func DecodeAddProductRequest(_ context.Context, r *http.Request) (interface{}, error) {

@@ -4,15 +4,15 @@ import (
 	"testing"
 
 	"github.com/hambyhacks/CrimsonIMS/app/models"
-	service "github.com/hambyhacks/CrimsonIMS/service/products"
+	service "github.com/hambyhacks/CrimsonIMS/service"
 )
 
-func TestSKUValidation(t *testing.T) {
+func TestValidation(t *testing.T) {
 	p := models.Products{
 		ID:         1,
-		Name:       "test",
-		Price:      30.0,
-		SKU:        "AMDRX-580-001",
+		Name:       "AMD Radeon RX570",
+		Price:      3000.0,
+		SKU:        "AMDRX-570-001",
 		StockCount: 3,
 	}
 

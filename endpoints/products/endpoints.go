@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/hambyhacks/CrimsonIMS/app/interface/requests"
-	"github.com/hambyhacks/CrimsonIMS/app/interface/responses"
+	"github.com/hambyhacks/CrimsonIMS/app/interface/products/requests"
+	"github.com/hambyhacks/CrimsonIMS/app/interface/products/responses"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
 )
 
