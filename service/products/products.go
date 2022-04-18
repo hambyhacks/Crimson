@@ -5,17 +5,17 @@ import (
 	"log"
 	"time"
 
-	klog "github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	klog "github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 
 	"github.com/hambyhacks/CrimsonIMS/app/models"
 )
 
 type ProductService interface {
-	AddProduct(ctx context.Context, products models.Products) (string, error)
+	AddProduct(ctx context.Context, products models.Product) (string, error)
 	GetProductByID(ctx context.Context, id int) (interface{}, error)
 	GetAllProducts(ctx context.Context) (interface{}, error)
-	UpdateProduct(ctx context.Context, products models.Products) (string, error)
+	UpdateProduct(ctx context.Context, products models.Product) (string, error)
 	DeleteProduct(ctx context.Context, id int) (string, error)
 }
 
@@ -33,11 +33,11 @@ func NewProdServ(repo ProductsRepository, logger klog.Logger) ProductService {
 }
 
 // AddProduct implements ProductService
-func (p *ProdServ) AddProduct(ctx context.Context, products models.Products) (string, error) {
+func (p *ProdServ) AddProduct(ctx context.Context, products models.Product) (string, error) {
 	log.Println("[i] Endpoint: /v1/admin/add")
 	logger := klog.With(p.logger, "method", "add product")
 	msg := "successfully added product"
-	prodDetails := models.Products{
+	prodDetails := models.Product{
 		ID:           products.ID,
 		Name:         products.Name,
 		Price:        products.Price,
@@ -95,12 +95,12 @@ func (p *ProdServ) GetProductByID(ctx context.Context, id int) (interface{}, err
 }
 
 // UpdateProduct implements ProductService
-func (p *ProdServ) UpdateProduct(ctx context.Context, products models.Products) (string, error) {
+func (p *ProdServ) UpdateProduct(ctx context.Context, products models.Product) (string, error) {
 	log.Println("[i] Endpoint: /v1/admin/update/:id")
 	logger := klog.With(p.logger, "method", "update product")
 	msg := "successfully updated product details"
 
-	prodDetails := models.Products{
+	prodDetails := models.Product{
 		ID:           products.ID,
 		Name:         products.Name,
 		Price:        products.Price,

@@ -5,23 +5,23 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 
 	"github.com/hambyhacks/CrimsonIMS/app/models"
 )
 
 // Error messages
 var (
-	RepoErr     = errors.New("unable to process database request")
+	ErrRepo     = errors.New("unable to process database request")
 	ErrNotFound = errors.New("product not found")
 )
 
 type ProductsRepository interface {
-	AddProduct(ctx context.Context, products models.Products) error
+	AddProduct(ctx context.Context, products models.Product) error
 	GetProductByID(ctx context.Context, id int) (interface{}, error)
 	GetAllProducts(ctx context.Context) (interface{}, error)
-	UpdateProduct(ctx context.Context, products models.Products) (string, error)
+	UpdateProduct(ctx context.Context, products models.Product) (string, error)
 	DeleteProduct(ctx context.Context, id int) (string, error)
 }
 
@@ -35,7 +35,7 @@ func NewProdRepo(db *sql.DB, logger log.Logger) (ProductsRepository, error) {
 }
 
 // AddProduct implements ProductsRepository
-func (r *prodRepo) AddProduct(ctx context.Context, products models.Products) error {
+func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) error {
 	q := `INSERT INTO products
 		  (id, product_name, price, sku, date_ordered, date_received, stock_count)
 		  VALUES ($1, $2, $3, $4, $5, $6, $7)`
@@ -79,7 +79,7 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 
 // GetAllProducts implements ProductsRepository
 func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
-	prod := models.Products{}
+	prod := models.Product{}
 	var res []interface{}
 	q := `SELECT 
 		  id, product_name, price, sku, stock_count 
@@ -107,7 +107,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 
 // GetProductByID implements ProductsRepository
 func (r *prodRepo) GetProductByID(ctx context.Context, id int) (interface{}, error) {
-	prod := models.Products{}
+	prod := models.Product{}
 	q := `SELECT id, product_name, price, sku, stock_count FROM products WHERE id = $1`
 
 	err := r.db.QueryRowContext(ctx, q, id).Scan(&prod.ID, &prod.Name, &prod.Price, &prod.SKU, &prod.StockCount)
@@ -123,7 +123,7 @@ func (r *prodRepo) GetProductByID(ctx context.Context, id int) (interface{}, err
 }
 
 // UpdateProduct implements ProductsRepository
-func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Products) (string, error) {
+func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (string, error) {
 	q := `UPDATE products SET product_name = $1, price = $2, sku = $3, stock_count = $4 WHERE id = $5`
 	args := []interface{}{products.Name, products.Price, products.SKU, products.StockCount, products.ID}
 

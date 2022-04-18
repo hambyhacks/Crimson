@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	"github.com/hambyhacks/CrimsonIMS/app/models"
-	service "github.com/hambyhacks/CrimsonIMS/service"
+	prodValidator "github.com/hambyhacks/CrimsonIMS/service/products"
 )
 
 func TestValidation(t *testing.T) {
-	p := models.Products{
+	p := models.Product{
 		ID:         1,
 		Name:       "AMD Radeon RX570",
 		Price:      3000.0,
@@ -16,7 +16,7 @@ func TestValidation(t *testing.T) {
 		StockCount: 3,
 	}
 
-	err := service.Validate(p)
+	err := prodValidator.Validate(p)
 	if err != nil {
 		t.Fatal(err)
 	}

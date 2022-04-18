@@ -4,7 +4,7 @@ import "github.com/hambyhacks/CrimsonIMS/app/models"
 
 type (
 	AddProductRequest struct {
-		Product models.Products
+		Product models.Product
 	}
 
 	GetProductByIDRequest struct {
@@ -18,6 +18,6 @@ type (
 	}
 
 	UpdateProductRequest struct {
-		Product models.Products
+		Product models.Product
 	}
 )

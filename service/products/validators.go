@@ -7,7 +7,7 @@ import (
 	"github.com/hambyhacks/CrimsonIMS/app/models"
 )
 
-func Validate(p models.Products) error {
+func Validate(p models.Product) error {
 	validate := validator.New()
 	validate.RegisterValidation("sku", SKUValidation)
 	validate.RegisterValidation("name", NameValidation)
