@@ -84,7 +84,6 @@ func (p *ProdServ) GetAllProducts(ctx context.Context) (interface{}, error) {
 func (p *ProdServ) GetProductByID(ctx context.Context, id int) (interface{}, error) {
 	log.Println("[i] Endpoint: /v1/admin/products/:id")
 	logger := klog.With(p.logger, "method", "get product by id")
-	var product interface{}
 
 	product, err := p.repo.GetProductByID(ctx, id)
 	if err != nil {
