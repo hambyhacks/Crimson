@@ -8,23 +8,34 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	authreq "github.com/hambyhacks/CrimsonIMS/app/interface/auth/requests"
 	prodreq "github.com/hambyhacks/CrimsonIMS/app/interface/products/requests"
+	userreq "github.com/hambyhacks/CrimsonIMS/app/interface/users/requests"
 	"github.com/hambyhacks/CrimsonIMS/app/models"
-	authValidator "github.com/hambyhacks/CrimsonIMS/service/auth"
 	prodValidator "github.com/hambyhacks/CrimsonIMS/service/products"
+	userValidator "github.com/hambyhacks/CrimsonIMS/service/users"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Error Definitions
+var (
+	ErrDecodingToJSON  = errors.New("unable to decode to json")
+	ErrEncodingToJSON  = errors.New("unable to encode to json")
+	ErrDBRequest       = errors.New("unable to process request")
+	ErrValidation      = errors.New("validation failed")
+	ErrIntConv         = errors.New("unable to convert string to int")
+	ErrEmailFieldEmpty = errors.New("empty email")
+)
+
+// Product Requests Decoder (line 30-85)
 func DecodeAddProductRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req prodreq.AddProductRequest
 	err := json.NewDecoder(r.Body).Decode(&req.Product)
 	if err != nil {
-		return nil, err
+		return nil, ErrDecodingToJSON
 	}
 	err = prodValidator.Validate(req.Product)
 	if err != nil {
-		return nil, err
+		return nil, ErrValidation
 	}
 	return req, nil
 }
@@ -40,7 +51,7 @@ func DecodeGetProductByIDRequest(_ context.Context, r *http.Request) (interface{
 
 	id, err := strconv.ParseInt(vars, 10, 64)
 	if err != nil {
-		return nil, err
+		return nil, ErrIntConv
 	}
 
 	req = prodreq.GetProductByIDRequest{ID: int(id)}
@@ -53,7 +64,7 @@ func DecodeDeleteProductRequest(_ context.Context, r *http.Request) (interface{}
 
 	id, err := strconv.ParseInt(vars, 10, 64)
 	if err != nil {
-		return nil, err
+		return nil, ErrIntConv
 	}
 
 	req = prodreq.DeleteProductRequest{ID: int(id)}
@@ -64,75 +75,83 @@ func DecodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}
 	var req prodreq.UpdateProductRequest
 	err := json.NewDecoder(r.Body).Decode(&req.Product)
 	if err != nil {
-		return nil, err
+		return nil, ErrDecodingToJSON
 	}
 	err = prodValidator.Validate(req.Product)
 	if err != nil {
-		return nil, err
+		return nil, ErrValidation
 	}
 	return req, nil
 }
 
+// Authentication Request Decoder (line 88-133)
 func DecodeAddUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req authreq.AddUserRequest
+	var req userreq.AddUserRequest
 	err := json.NewDecoder(r.Body).Decode(&req.User)
 	if err != nil {
-		return nil, err
+		return nil, ErrDecodingToJSON
 	}
-	err = authValidator.Validate(req.User)
+	err = userValidator.Validate(req.User)
 	if err != nil {
-		return nil, err
+		return nil, ErrValidation
 	}
 
-	hash, err := SetPassword(req.User.Password.Plaintext)
+	passwd, err := SetPassword(req.User.Password.Plaintext)
 	if err != nil {
-		return nil, err
+		return nil, ErrDBRequest
 	}
 
-	req.User.Password.Plaintext = hash
+	req.User.Password.Hash = passwd
+	req.User.Password.Plaintext = string(passwd)
 
 	return req, nil
 }
 
 func DecodeGetUserByEmailRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req authreq.GetUserByEmailRequest
+	var req userreq.GetUserByEmailRequest
 	email := r.URL.Query().Get("email")
 
 	if req.Email == "" {
-		return nil, errors.New("empty email")
+		return nil, ErrEmailFieldEmpty
 	}
 
-	req = authreq.GetUserByEmailRequest{Email: email}
+	req = userreq.GetUserByEmailRequest{Email: email}
 	return req, nil
 }
 
 func DecodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req authreq.UpdateUserRequest
+	var req userreq.UpdateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&req.User)
 	if err != nil {
-		return nil, err
+		return nil, ErrDecodingToJSON
 	}
-	err = authValidator.Validate(req.User)
+	err = userValidator.Validate(req.User)
 	if err != nil {
-		return nil, err
+		return nil, ErrValidation
 	}
 	return req, nil
 }
 
+// Response encoder
 func EncodeResponses(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	return json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		return ErrEncodingToJSON
+	}
+	return nil
 }
 
-func SetPassword(plaintext string) (string, error) {
+// Encryption functions
+func SetPassword(plaintext string) ([]byte, error) {
 	var user models.User
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), 12)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	user.Password.Plaintext = plaintext
 	user.Password.Hash = hash
-	return string(hash), nil
+	return hash, nil
 }
 
 func CheckHash(plaintext string) (bool, error) {

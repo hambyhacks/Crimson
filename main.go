@@ -16,8 +16,8 @@ import (
 	"github.com/go-kit/log/level"
 
 	api "github.com/hambyhacks/CrimsonIMS/api/routes"
-	authsrv "github.com/hambyhacks/CrimsonIMS/service/auth"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
+	usersrv "github.com/hambyhacks/CrimsonIMS/service/users"
 	_ "github.com/lib/pq"
 )
 
@@ -41,7 +41,7 @@ type config struct {
 func main() {
 	var cfg config
 	var prodsvc prodsrv.ProductService
-	var authsvc authsrv.AuthService
+	var authsvc usersrv.UserService
 
 	// General Environment flags
 	flag.IntVar(&cfg.port, "port", 9000, "API Server port.")
@@ -87,15 +87,15 @@ func main() {
 	}
 
 	// Authentication service
-	authsvc = &authsrv.AuthServ{}
+	authsvc = &usersrv.UserServ{}
 	{
-		authrepo, err := authsrv.NewAuthRepo(authdb, klogger)
+		authrepo, err := usersrv.NewUserRepo(authdb, klogger)
 		if err != nil {
 			level.Error(klogger).Log("exit", err)
 			os.Exit(1)
 		}
 		defer authdb.Close()
-		authsvc = authsrv.NewAuthSrv(authrepo, klogger)
+		authsvc = usersrv.NewUserSrv(authrepo, klogger)
 	}
 
 	// Declare http.Server struct

@@ -6,13 +6,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	transport "github.com/go-kit/kit/transport/http"
 	app "github.com/hambyhacks/CrimsonIMS/app/business"
-	authEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/auth"
 	prodEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/products"
-	authsrv "github.com/hambyhacks/CrimsonIMS/service/auth"
+	authEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/users"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
+	usersrv "github.com/hambyhacks/CrimsonIMS/service/users"
 )
 
-func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc authsrv.AuthService) *chi.Mux {
+func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService) *chi.Mux {
 	r := chi.NewRouter()
 
 	// HTTP handlers
