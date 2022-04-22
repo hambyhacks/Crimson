@@ -84,7 +84,7 @@ func DecodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}
 	return req, nil
 }
 
-// Authentication Request Decoder (line 88-133)
+// User Service Request Decoder (line 88-133)
 func DecodeAddUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req userreq.AddUserRequest
 	err := json.NewDecoder(r.Body).Decode(&req.User)

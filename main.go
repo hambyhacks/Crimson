@@ -39,6 +39,7 @@ type config struct {
 }
 
 func main() {
+	// Configuration
 	var cfg config
 	var prodsvc prodsrv.ProductService
 	var authsvc usersrv.UserService
@@ -86,7 +87,7 @@ func main() {
 		prodsvc = prodsrv.NewProdServ(prodrepo, klogger)
 	}
 
-	// Authentication service
+	// User service
 	authsvc = &usersrv.UserServ{}
 	{
 		authrepo, err := usersrv.NewUserRepo(authdb, klogger)
