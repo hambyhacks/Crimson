@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	transport "github.com/go-kit/kit/transport/http"
-	app "github.com/hambyhacks/CrimsonIMS/app/business"
+	app "github.com/hambyhacks/CrimsonIMS/app/business/parsers"
 	prodEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/products"
 	authEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/users"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
@@ -92,7 +92,7 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService)
 				r.Group(func(r chi.Router) {
 					r.Method(http.MethodGet, "/users/", GetUserByEmailHandler) // unfinished: needs to get query parameter
 					r.Method(http.MethodPost, "/users/add", AddUserHandler)
-					r.Method(http.MethodPatch, "/users/update", UpdateUserHandler) // unused
+					r.Method(http.MethodPatch, "/users/update/{id:[0-9]+}", UpdateUserHandler) // unused
 				})
 			})
 		})

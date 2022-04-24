@@ -13,6 +13,7 @@ Features:
 - [x] Add `User` service in project.
 - [ ] Add `Authentication` service in project.
 - [ ] Create tests.
+- [ ] Add Email sender function.
 
 ## Needs to be fixed
 

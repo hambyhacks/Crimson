@@ -28,7 +28,7 @@ func NewUserSrv(repo UserRepository, logger klog.Logger) UserService {
 	}
 }
 
-// AddUser implements AuthService
+// AddUser implements UserService
 func (u *UserServ) AddUser(ctx context.Context, user models.User) (string, error) {
 	log.Println("[i] Endpoint: /v1/admin/users/add")
 	logger := klog.With(u.logger, "method", "add user")
@@ -50,7 +50,7 @@ func (u *UserServ) AddUser(ctx context.Context, user models.User) (string, error
 	return msg, nil
 }
 
-// GetByEmail implements AuthService
+// GetByEmail implements UserService
 func (u *UserServ) GetByEmail(ctx context.Context, email string) (interface{}, error) {
 	log.Println("[i] Endpoint: /v1/admin/users/email")
 	logger := klog.With(u.logger, "method", "get user by email")
@@ -63,7 +63,7 @@ func (u *UserServ) GetByEmail(ctx context.Context, email string) (interface{}, e
 	return user, nil
 }
 
-// UpdateUser implements AuthService
+// UpdateUser implements UserService
 func (u *UserServ) UpdateUser(ctx context.Context, user models.User) (string, error) {
 	log.Println("[i] Endpoint: /v1/admin/user/update/")
 	logger := klog.With(u.logger, "method", "update user by ")

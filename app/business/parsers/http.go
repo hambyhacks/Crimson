@@ -121,6 +121,7 @@ func DecodeGetUserByEmailRequest(_ context.Context, r *http.Request) (interface{
 
 func DecodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req userreq.UpdateUserRequest
+
 	err := json.NewDecoder(r.Body).Decode(&req.User)
 	if err != nil {
 		return nil, ErrDecodingToJSON
