@@ -36,6 +36,13 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  string
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 func main() {
@@ -59,6 +66,13 @@ func main() {
 	flag.IntVar(&cfg.authdb.maxOpenConns, "auth-db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.authdb.maxIdleConns, "auth-db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.authdb.maxIdleTime, "auth-db-max-idle-time", "15m", "PostgreSQL max connection idle time")
+
+	// SMTP Service Flags
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 25, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", os.Getenv("SMTP_USERNAME"), "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", os.Getenv("SMTP_PASSWORD"), "SMTP Password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Admin <no-reply@cyrepairhub.com>", "SMTP sender")
 	flag.Parse()
 
 	// Set logger to write msg to stdout.

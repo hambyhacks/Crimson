@@ -22,3 +22,5 @@ Features:
 2. Implement `update` on `auth` service.
 
 3. Integrate `SetPassword()` and `CheckHash()` functions to `UserService`.
+
+4. Fix `nil pointer dereference` when sending mail when user is registering.

@@ -91,7 +91,7 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService)
 				// Auth service
 				r.Group(func(r chi.Router) {
 					r.Method(http.MethodGet, "/users/", GetUserByEmailHandler) // unfinished: needs to get query parameter
-					r.Method(http.MethodPost, "/users/add", AddUserHandler)
+					r.Method(http.MethodPost, "/register", AddUserHandler)
 					r.Method(http.MethodPatch, "/users/update/{id:[0-9]+}", UpdateUserHandler) // unused
 				})
 			})

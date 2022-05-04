@@ -8,6 +8,7 @@ import (
 	klog "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/hambyhacks/CrimsonIMS/app/models"
+	service "github.com/hambyhacks/CrimsonIMS/service/mailer"
 )
 
 type UserService interface {
@@ -30,6 +31,7 @@ func NewUserSrv(repo UserRepository, logger klog.Logger) UserService {
 
 // AddUser implements UserService
 func (u *UserServ) AddUser(ctx context.Context, user models.User) (string, error) {
+	var email service.MailerServ
 	log.Println("[i] Endpoint: /v1/admin/users/add")
 	logger := klog.With(u.logger, "method", "add user")
 	msg := "successfully added user"
@@ -42,7 +44,19 @@ func (u *UserServ) AddUser(ctx context.Context, user models.User) (string, error
 		Activated: user.Activated,
 	}
 
-	err := u.repo.AddUser(ctx, userDetails)
+	mailer := models.Mailer{
+		Recipient:    user.Email,
+		TemplateFile: "user_welcome.tmpl",
+		Data:         userDetails,
+	}
+
+	_, err := email.SendMail(ctx, mailer)
+	if err != nil {
+		level.Error(logger).Log("smtp-error", err)
+		return "unable to process request", err
+	}
+
+	err = u.repo.AddUser(ctx, userDetails)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
 		return "unable to process request", err

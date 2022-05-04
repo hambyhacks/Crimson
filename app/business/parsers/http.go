@@ -102,7 +102,6 @@ func DecodeAddUserRequest(_ context.Context, r *http.Request) (interface{}, erro
 	}
 
 	req.User.Password.Hash = passwd
-	req.User.Password.Plaintext = string(passwd)
 
 	return req, nil
 }
