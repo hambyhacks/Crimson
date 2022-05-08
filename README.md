@@ -2,11 +2,9 @@
 
 Features:
 
-1. Inventory Management System
+1. User authentication
 
-2. User authentication
-
-3. Web app interface
+2. Web app interface
 
 ## Todo
 
