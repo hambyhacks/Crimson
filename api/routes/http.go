@@ -5,9 +5,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	transport "github.com/go-kit/kit/transport/http"
-	app "github.com/hambyhacks/CrimsonIMS/app/business/parsers"
-	prodEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/products"
-	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
+	parsers "github.com/hambyhacks/CrimsonIMS/internal/data"
+	prodEndpoints "github.com/hambyhacks/CrimsonIMS/internal/endpoints/products"
+	prodsrv "github.com/hambyhacks/CrimsonIMS/internal/service/products"
 )
 
 func NewHTTPHandler(prodsvc prodsrv.ProductService) *chi.Mux {
@@ -16,32 +16,32 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService) *chi.Mux {
 	// HTTP handlers
 	AddProductHandler := transport.NewServer(
 		prodEndpoints.MakeAddProductEndpoint(prodsvc),
-		app.DecodeAddProductRequest,
-		app.EncodeResponses,
+		parsers.DecodeAddProductRequest,
+		parsers.EncodeResponses,
 	)
 
 	GetAllProductsHandler := transport.NewServer(
 		prodEndpoints.MakeGetAllProductsEndpoint(prodsvc),
-		app.DecodeGetAllProductsRequest,
-		app.EncodeResponses,
+		parsers.DecodeGetAllProductsRequest,
+		parsers.EncodeResponses,
 	)
 
 	GetProductByIDHandler := transport.NewServer(
 		prodEndpoints.MakeGetProductByIDEndpoint(prodsvc),
-		app.DecodeGetProductByIDRequest,
-		app.EncodeResponses,
+		parsers.DecodeGetProductByIDRequest,
+		parsers.EncodeResponses,
 	)
 
 	DeleteProductHandler := transport.NewServer(
 		prodEndpoints.MakeDeleteProductEndpoint(prodsvc),
-		app.DecodeDeleteProductRequest,
-		app.EncodeResponses,
+		parsers.DecodeDeleteProductRequest,
+		parsers.EncodeResponses,
 	)
 
 	UpdateProductHandler := transport.NewServer(
 		prodEndpoints.MakeUpdateProductEndpoint(prodsvc),
-		app.DecodeUpdateProductRequest,
-		app.EncodeResponses,
+		parsers.DecodeUpdateProductRequest,
+		parsers.EncodeResponses,
 	)
 
 	// Public routes

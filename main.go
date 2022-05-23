@@ -16,7 +16,7 @@ import (
 	"github.com/go-kit/log/level"
 
 	api "github.com/hambyhacks/CrimsonIMS/api/routes"
-	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
+	prodsrv "github.com/hambyhacks/CrimsonIMS/internal/service/products"
 	_ "github.com/lib/pq"
 )
 
