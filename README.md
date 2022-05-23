@@ -10,17 +10,13 @@ Features:
 
 ## Todo
 
-- [x] Add `User` service in project.
+- [ ] Add `User` service in project.
 - [ ] Add `Authentication` service in project.
 - [ ] Create tests.
 - [ ] Add Email sender function.
 
-## Needs to be fixed
+## Changes
 
-1. Email query parameter.
+5/23/2022
 
-2. Implement `update` on `auth` service.
-
-3. Integrate `SetPassword()` and `CheckHash()` functions to `UserService`.
-
-4. Fix `nil pointer dereference` when sending mail when user is registering.
+- Removed `user` service and `email` service to refactor code.
