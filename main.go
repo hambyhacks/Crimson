@@ -51,9 +51,14 @@ func main() {
 	klogger := kitlogger.NewLogfmtLogger(os.Stderr)
 
 	// Open DB connections
-	proddb := openProdDB(cfg)
+	proddb, err := openProdDB(cfg)
+	if err != nil {
+		logger.Println("cannot open prod_svc database")
+		os.Exit(1)
+	} else {
+		logger.Println("prod_svc DB connection pool established")
+	}
 	defer proddb.Close()
-	logger.Println("prod_svc DB connection pool established")
 
 	// Initialize services
 	// Products service
@@ -104,11 +109,11 @@ func main() {
 
 }
 
-func openProdDB(cfg config) *sql.DB {
+func openProdDB(cfg config) (*sql.DB, error) {
 	// Open up PostgreSQL using DSN specified in the environment variable
 	db, err := sql.Open("postgres", cfg.proddb.dsn)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	// Set configuration of DB
@@ -121,7 +126,7 @@ func openProdDB(cfg config) *sql.DB {
 	// Set duration and check for errors
 	duration, err := time.ParseDuration(cfg.proddb.maxIdleTime)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	db.SetConnMaxIdleTime(duration)
@@ -131,7 +136,7 @@ func openProdDB(cfg config) *sql.DB {
 
 	err = db.PingContext(ctx)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return db
+	return db, nil
 }
