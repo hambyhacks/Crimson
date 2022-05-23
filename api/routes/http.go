@@ -7,12 +7,10 @@ import (
 	transport "github.com/go-kit/kit/transport/http"
 	app "github.com/hambyhacks/CrimsonIMS/app/business/parsers"
 	prodEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/products"
-	authEndpoints "github.com/hambyhacks/CrimsonIMS/endpoints/users"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/service/products"
-	usersrv "github.com/hambyhacks/CrimsonIMS/service/users"
 )
 
-func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService) *chi.Mux {
+func NewHTTPHandler(prodsvc prodsrv.ProductService) *chi.Mux {
 	r := chi.NewRouter()
 
 	// HTTP handlers
@@ -46,24 +44,6 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService)
 		app.EncodeResponses,
 	)
 
-	AddUserHandler := transport.NewServer(
-		authEndpoints.MakeAddUserEndpoint(authsvc),
-		app.DecodeAddUserRequest,
-		app.EncodeResponses,
-	)
-
-	GetUserByEmailHandler := transport.NewServer(
-		authEndpoints.MakeGetUserByEmailEndpoint(authsvc),
-		app.DecodeGetUserByEmailRequest,
-		app.EncodeResponses,
-	)
-
-	UpdateUserHandler := transport.NewServer(
-		authEndpoints.MakeUpdateUserEndpoint(authsvc),
-		app.DecodeUpdateUserRequest,
-		app.EncodeResponses,
-	)
-
 	// Public routes
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/v1/info", http.StatusMovedPermanently)
@@ -75,7 +55,6 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService)
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/info", Index)
-
 		// Private routes
 		r.Group(func(r chi.Router) {
 			// Add Authentication middleware here
@@ -88,14 +67,12 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService, authsvc usersrv.UserService)
 					r.Method(http.MethodPost, "/products/add", AddProductHandler)
 					r.Method(http.MethodPatch, "/products/update/{id:[0-9]+}", UpdateProductHandler)
 				})
-				// Auth service
-				r.Group(func(r chi.Router) {
-					r.Method(http.MethodGet, "/users/", GetUserByEmailHandler) // unfinished: needs to get query parameter
-					r.Method(http.MethodPost, "/register", AddUserHandler)
-					r.Method(http.MethodPatch, "/users/update/{id:[0-9]+}", UpdateUserHandler) // unused
-				})
 			})
 		})
 	})
 	return r
+}
+
+func Index(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Crimson IMS\n"))
 }

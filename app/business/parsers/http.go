@@ -9,11 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	prodreq "github.com/hambyhacks/CrimsonIMS/app/interface/products/requests"
-	userreq "github.com/hambyhacks/CrimsonIMS/app/interface/users/requests"
-	"github.com/hambyhacks/CrimsonIMS/app/models"
 	prodValidator "github.com/hambyhacks/CrimsonIMS/service/products"
-	userValidator "github.com/hambyhacks/CrimsonIMS/service/users"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // Error Definitions
@@ -84,54 +80,6 @@ func DecodeUpdateProductRequest(_ context.Context, r *http.Request) (interface{}
 	return req, nil
 }
 
-// User Service Request Decoder (line 88-133)
-func DecodeAddUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req userreq.AddUserRequest
-	err := json.NewDecoder(r.Body).Decode(&req.User)
-	if err != nil {
-		return nil, ErrDecodingToJSON
-	}
-	err = userValidator.Validate(req.User)
-	if err != nil {
-		return nil, ErrValidation
-	}
-
-	passwd, err := SetPassword(req.User.Password.Plaintext)
-	if err != nil {
-		return nil, ErrDBRequest
-	}
-
-	req.User.Password.Hash = passwd
-
-	return req, nil
-}
-
-func DecodeGetUserByEmailRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req userreq.GetUserByEmailRequest
-	email := r.URL.Query().Get("email")
-
-	if req.Email == "" {
-		return nil, ErrEmailFieldEmpty
-	}
-
-	req = userreq.GetUserByEmailRequest{Email: email}
-	return req, nil
-}
-
-func DecodeUpdateUserRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var req userreq.UpdateUserRequest
-
-	err := json.NewDecoder(r.Body).Decode(&req.User)
-	if err != nil {
-		return nil, ErrDecodingToJSON
-	}
-	err = userValidator.Validate(req.User)
-	if err != nil {
-		return nil, ErrValidation
-	}
-	return req, nil
-}
-
 // Response encoder
 func EncodeResponses(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -140,30 +88,4 @@ func EncodeResponses(_ context.Context, w http.ResponseWriter, response interfac
 		return ErrEncodingToJSON
 	}
 	return nil
-}
-
-// Encryption functions
-func SetPassword(plaintext string) ([]byte, error) {
-	var user models.User
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), 12)
-	if err != nil {
-		return nil, err
-	}
-	user.Password.Plaintext = plaintext
-	user.Password.Hash = hash
-	return hash, nil
-}
-
-func CheckHash(plaintext string) (bool, error) {
-	var user models.User
-	err := bcrypt.CompareHashAndPassword(user.Password.Hash, []byte(plaintext))
-	if err != nil {
-		switch {
-		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
-			return false, nil
-		default:
-			return false, err
-		}
-	}
-	return true, nil
 }
