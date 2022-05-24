@@ -11,10 +11,12 @@ import (
 	"github.com/hambyhacks/CrimsonIMS/internal/data/models"
 )
 
-// Error messages
+// Repo messages
 var (
-	ErrRepo     = errors.New("unable to process database request")
-	ErrNotFound = errors.New("product not found")
+	ErrRepo        = errors.New("unable to process database request")
+	ErrNotFound    = errors.New("product not found")
+	RequestErr     = "unable to process database request"
+	RequestSuccess = "success"
 )
 
 type ProductsRepository interface {
@@ -37,22 +39,26 @@ func NewProdRepo(db *sql.DB, logger log.Logger) (ProductsRepository, error) {
 // AddProduct implements ProductsRepository
 func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) error {
 	q := `INSERT INTO products
-		  (id, product_name, price, sku, date_ordered, date_received, stock_count)
-		  VALUES ($1, $2, $3, $4, $5, $6, $7)`
+		  (id, product_name, declared_price, shipping_fee, seller_name, seller_address, 
+		   date_ordered, date_received, payment_mode, stock_count)
+		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 	args := []interface{}{
 		&products.ID,
 		&products.Name,
-		&products.Price,
-		&products.SKU,
+		&products.DeclaredPrice,
+		&products.ShippingFee,
+		&products.SellerName,
+		&products.SellerAddress,
 		&products.DateOrdered,
 		&products.DateReceived,
+		&products.ModeOfPayment,
 		&products.StockCount,
 	}
 
 	_, err := r.db.ExecContext(ctx, q, args...)
 	if err != nil {
 		level.Error(r.logger).Log("repository-error", err)
-		return err
+		return ErrRepo
 	}
 	return nil
 }
@@ -62,19 +68,22 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 	q := `DELETE FROM products where id = $1`
 	res, err := r.db.ExecContext(ctx, q, id)
 	if err != nil {
-		return "unable to process request", err
+		level.Error(r.logger).Log("repository-error", err)
+		return RequestErr, ErrRepo
 	}
 
 	_, err = res.RowsAffected()
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return "", ErrNotFound
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrNotFound
 		default:
-			return "", err
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
 		}
 	}
-	return "successfully deleted product ", nil
+	return RequestSuccess, nil
 }
 
 // GetAllProducts implements ProductsRepository
@@ -82,23 +91,29 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	prod := models.Product{}
 	var res []interface{}
 	q := `SELECT 
-		  id, product_name, price, sku, stock_count 
+		  id, product_name, declared_price, shipping_fee, 
+		  tracking_number, seller_name,
+		  seller_address, date_ordered, date_received,
+		  payment_mode, stock_count 
 		  FROM products ORDER BY id DESC`
 
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, ErrNotFound
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrNotFound
 		default:
-			return nil, err
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
 		}
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&prod.ID, &prod.Name, &prod.Price, &prod.SKU, &prod.StockCount)
+		err = rows.Scan(&prod.ID, &prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
 		if err != nil {
-			return nil, err
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
 		}
 		res = append([]interface{}{prod}, res...)
 	}
@@ -108,15 +123,20 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 // GetProductByID implements ProductsRepository
 func (r *prodRepo) GetProductByID(ctx context.Context, id int) (interface{}, error) {
 	prod := models.Product{}
-	q := `SELECT id, product_name, price, sku, stock_count FROM products WHERE id = $1`
+	q := `SELECT id, product_name, declared_price, 
+		  shipping_fee, tracking_number, seller_name,
+		  seller_address, date_ordered, date_received,
+		  payment_mode, stock_count FROM products WHERE id = $1`
 
-	err := r.db.QueryRowContext(ctx, q, id).Scan(&prod.ID, &prod.Name, &prod.Price, &prod.SKU, &prod.StockCount)
+	err := r.db.QueryRowContext(ctx, q, id).Scan(&prod.ID, &prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, ErrNotFound
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrNotFound
 		default:
-			return nil, err
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
 		}
 	}
 	return prod, nil
@@ -124,16 +144,35 @@ func (r *prodRepo) GetProductByID(ctx context.Context, id int) (interface{}, err
 
 // UpdateProduct implements ProductsRepository
 func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (string, error) {
-	q := `UPDATE products SET product_name = $1, price = $2, sku = $3, stock_count = $4 WHERE id = $5`
-	args := []interface{}{products.Name, products.Price, products.SKU, products.StockCount, products.ID}
+	q := `UPDATE products SET 
+		  product_name = $1, declared_price = $2, 
+		  shipping_fee = $3, tracking_number = $4, 
+		  seller_name = $5, seller_address = $5,
+		  date_ordered = $6, date_received = $7 
+		  payment_mode = $8, stock_count = $9, WHERE id = $10`
+	args := []interface{}{
+		products.Name,
+		products.DeclaredPrice,
+		products.ShippingFee,
+		products.TrackingNumber,
+		products.SellerName,
+		products.SellerAddress,
+		products.DateOrdered,
+		products.DateReceived,
+		products.ModeOfPayment,
+		products.StockCount,
+		products.ID,
+	}
 
 	res, err := r.db.ExecContext(ctx, q, args...)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return "", ErrNotFound
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrNotFound
 		default:
-			return "", err
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
 		}
 	}
 
@@ -141,12 +180,14 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return "", ErrNotFound
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrNotFound
 		default:
-			return "", err
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
 		}
 	}
 
-	return "record successfully updated", nil
+	return RequestSuccess, nil
 
 }

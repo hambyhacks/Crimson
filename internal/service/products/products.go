@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -21,8 +22,9 @@ type ProductService interface {
 }
 
 var (
-	green  = color.New(color.FgGreen)
-	yellow = color.New(color.FgYellow)
+	green      = color.New(color.FgGreen)
+	yellow     = color.New(color.FgYellow)
+	ErrService = errors.New("service error")
 )
 
 // Implementation of Product Service interface
@@ -42,23 +44,26 @@ func NewProdServ(repo ProductsRepository, logger klog.Logger) ProductService {
 func (p *ProdServ) AddProduct(ctx context.Context, products models.Product) (string, error) {
 	log.Println(yellow.Sprint("[i] Endpoint: "), green.Sprint("/v1/admin/products/add"))
 	logger := klog.With(p.logger, "method", "add product")
-	msg := "successfully added product"
 	prodDetails := models.Product{
-		ID:           products.ID,
-		Name:         products.Name,
-		Price:        products.Price,
-		SKU:          products.SKU,
-		DateOrdered:  time.Now().UTC(),
-		DateReceived: time.Now().UTC(),
-		StockCount:   products.StockCount,
+		ID:             products.ID,
+		Name:           products.Name,
+		DeclaredPrice:  products.DeclaredPrice,
+		ShippingFee:    products.ShippingFee,
+		TrackingNumber: products.TrackingNumber,
+		SellerName:     products.SellerName,
+		SellerAddress:  products.SellerAddress,
+		DateOrdered:    time.Now().UTC(),
+		DateReceived:   time.Now().UTC(),
+		ModeOfPayment:  products.ModeOfPayment,
+		StockCount:     products.StockCount,
 	}
 
 	err := p.repo.AddProduct(ctx, prodDetails)
 	if err != nil {
 		level.Error(logger).Log("repository-err", err)
-		return "unable to process request", err
+		return RequestErr, ErrService
 	}
-	return msg, nil
+	return RequestSuccess, nil
 }
 
 // DeleteProduct implements ProductService
@@ -68,7 +73,7 @@ func (p *ProdServ) DeleteProduct(ctx context.Context, id int) (string, error) {
 	msg, err := p.repo.DeleteProduct(ctx, id)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return "unable to process request", err
+		return RequestErr, ErrService
 	}
 	return msg, nil
 }
@@ -82,7 +87,7 @@ func (p *ProdServ) GetAllProducts(ctx context.Context) (interface{}, error) {
 	product, err := p.repo.GetAllProducts(ctx)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return nil, err
+		return RequestErr, ErrService
 	}
 	return product, nil
 }
@@ -95,7 +100,7 @@ func (p *ProdServ) GetProductByID(ctx context.Context, id int) (interface{}, err
 	product, err := p.repo.GetProductByID(ctx, id)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return nil, err
+		return RequestErr, ErrService
 	}
 	return product, nil
 }
@@ -107,19 +112,23 @@ func (p *ProdServ) UpdateProduct(ctx context.Context, products models.Product) (
 	msg := "successfully updated product details"
 
 	prodDetails := models.Product{
-		ID:           products.ID,
-		Name:         products.Name,
-		Price:        products.Price,
-		SKU:          products.SKU,
-		DateOrdered:  time.Now().UTC(),
-		DateReceived: time.Now().UTC(),
-		StockCount:   products.StockCount,
+		ID:             products.ID,
+		Name:           products.Name,
+		DeclaredPrice:  products.DeclaredPrice,
+		ShippingFee:    products.ShippingFee,
+		TrackingNumber: products.TrackingNumber,
+		SellerName:     products.SellerName,
+		SellerAddress:  products.SellerAddress,
+		DateOrdered:    time.Now().UTC(),
+		DateReceived:   time.Now().UTC(),
+		ModeOfPayment:  products.ModeOfPayment,
+		StockCount:     products.StockCount,
 	}
 
 	msg, err := p.repo.UpdateProduct(ctx, prodDetails)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return "unable to process request", err
+		return RequestErr, ErrService
 	}
 	return msg, nil
 }
