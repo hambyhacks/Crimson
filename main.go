@@ -47,7 +47,7 @@ func main() {
 	flag.StringVar(&cfg.proddb.maxIdleTime, "prod-db-max-idle-time", "15m", "PostgreSQL max connection idle time")
 
 	// Set logger to write msg to stdout.
-	logger := log.New(os.Stdout, "User-API ", log.LstdFlags|log.Ldate|log.Ltime)
+	logger := log.New(os.Stdout, "CrimsonIMS-", log.LstdFlags|log.Ldate|log.Ltime)
 	klogger := kitlogger.NewLogfmtLogger(os.Stderr)
 
 	// Open DB connections
