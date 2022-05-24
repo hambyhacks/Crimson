@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"time"
 
 	"github.com/fatih/color"
 	klog "github.com/go-kit/log"
@@ -52,8 +51,8 @@ func (p *ProdServ) AddProduct(ctx context.Context, products models.Product) (str
 		TrackingNumber: products.TrackingNumber,
 		SellerName:     products.SellerName,
 		SellerAddress:  products.SellerAddress,
-		DateOrdered:    time.Now().UTC(),
-		DateReceived:   time.Now().UTC(),
+		DateOrdered:    products.DateOrdered,
+		DateReceived:   products.DateReceived,
 		ModeOfPayment:  products.ModeOfPayment,
 		StockCount:     products.StockCount,
 	}
@@ -119,8 +118,8 @@ func (p *ProdServ) UpdateProduct(ctx context.Context, products models.Product) (
 		TrackingNumber: products.TrackingNumber,
 		SellerName:     products.SellerName,
 		SellerAddress:  products.SellerAddress,
-		DateOrdered:    time.Now().UTC(),
-		DateReceived:   time.Now().UTC(),
+		DateOrdered:    products.DateOrdered,
+		DateReceived:   products.DateReceived,
 		ModeOfPayment:  products.ModeOfPayment,
 		StockCount:     products.StockCount,
 	}

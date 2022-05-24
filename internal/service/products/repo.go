@@ -187,7 +187,5 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 			return RequestErr, ErrRepo
 		}
 	}
-
 	return RequestSuccess, nil
-
 }

@@ -9,18 +9,18 @@ import (
 
 func Validate(p models.Product) error {
 	validate := validator.New()
-	validate.RegisterValidation("sku", SKUValidation)
-	validate.RegisterValidation("name", NameValidation)
+	validate.RegisterValidation("tracking_number", TrackingNumberValidation)
+	validate.RegisterValidation("product_name", ProductNameValidation)
 	return validate.Struct(p)
 }
 
-func SKUValidation(fl validator.FieldLevel) bool {
-	re := regexp.MustCompile(`^([A-Z]{5}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$)$`)
+func TrackingNumberValidation(fl validator.FieldLevel) bool {
+	re := regexp.MustCompile(`^.([^a-z0-9]{0,5}[0-9]{12})$`)
 	match := re.FindAllString(fl.Field().String(), -1)
 	return len(match) == 1
 }
 
-func NameValidation(fl validator.FieldLevel) bool {
+func ProductNameValidation(fl validator.FieldLevel) bool {
 	re := regexp.MustCompile(`[a-zA-Z0-9\s]+`)
 	match := re.FindAllString(fl.Field().String(), -1)
 	return len(match) == 1

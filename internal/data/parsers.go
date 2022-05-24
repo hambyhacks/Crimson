@@ -12,14 +12,13 @@ import (
 	prodValidator "github.com/hambyhacks/CrimsonIMS/internal/service/products"
 )
 
-// Error Definitions
+// Error messages
 var (
-	ErrDecodingToJSON  = errors.New("unable to decode to json")
-	ErrEncodingToJSON  = errors.New("unable to encode to json")
-	ErrDBRequest       = errors.New("unable to process request")
-	ErrValidation      = errors.New("validation failed")
-	ErrIntConv         = errors.New("unable to convert string to int")
-	ErrEmailFieldEmpty = errors.New("empty email")
+	ErrDecodingToJSON = errors.New("unable to decode to json")
+	ErrEncodingToJSON = errors.New("unable to encode to json")
+	ErrDBRequest      = errors.New("unable to process request")
+	ErrValidation     = errors.New("validation failed")
+	ErrIntConv        = errors.New("unable to convert string to int")
 )
 
 // Product Requests Decoder (line 30-85)
