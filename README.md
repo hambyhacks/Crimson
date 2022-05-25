@@ -14,6 +14,7 @@ Features:
 - [ ] Add `Authentication` service in project.
 - [ ] Create tests.
 - [ ] Add Email sender function.
+- [ ] Add Date Validation when sending `Add/Update` product request.
 
 ## Changes
 
@@ -26,3 +27,7 @@ Features:
 - Refactored the code even more by removing the `user` model and `mailer` templates.
 
 - Created validation function for `Product Tracking Number`.
+
+5/25/2022
+
+- Removed colorized outputs for logging and used `level` for debugging logs.
