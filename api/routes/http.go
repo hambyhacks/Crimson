@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	transport "github.com/go-kit/kit/transport/http"
-	parsers "github.com/hambyhacks/CrimsonIMS/internal/data"
+	parsers "github.com/hambyhacks/CrimsonIMS/internal/data/business"
 	prodEndpoints "github.com/hambyhacks/CrimsonIMS/internal/endpoints/products"
 	prodsrv "github.com/hambyhacks/CrimsonIMS/internal/service/products"
 )
