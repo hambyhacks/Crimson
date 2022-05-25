@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -39,14 +40,15 @@ func NewProdRepo(db *sql.DB, logger log.Logger) (ProductsRepository, error) {
 // AddProduct implements ProductsRepository
 func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) error {
 	q := `INSERT INTO products
-		  (id, product_name, declared_price, shipping_fee, seller_name, seller_address, 
+		  (id, product_name, declared_price, shipping_fee, tracking_number, seller_name, seller_address, 
 		   date_ordered, date_received, payment_mode, stock_count)
-		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 	args := []interface{}{
 		&products.ID,
 		&products.Name,
 		&products.DeclaredPrice,
 		&products.ShippingFee,
+		&products.TrackingNumber,
 		&products.SellerName,
 		&products.SellerAddress,
 		&products.DateOrdered,
@@ -147,9 +149,9 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 	q := `UPDATE products SET 
 		  product_name = $1, declared_price = $2, 
 		  shipping_fee = $3, tracking_number = $4, 
-		  seller_name = $5, seller_address = $5,
-		  date_ordered = $6, date_received = $7 
-		  payment_mode = $8, stock_count = $9, WHERE id = $10`
+		  seller_name = $5, seller_address = $6,
+		  date_ordered = $7, date_received = $8,
+		  payment_mode = $9, stock_count = $10 WHERE id = $11`
 	args := []interface{}{
 		products.Name,
 		products.DeclaredPrice,
@@ -157,8 +159,8 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 		products.TrackingNumber,
 		products.SellerName,
 		products.SellerAddress,
-		products.DateOrdered,
-		products.DateReceived,
+		time.Now().UTC(),
+		time.Now().UTC(),
 		products.ModeOfPayment,
 		products.StockCount,
 		products.ID,
