@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	klog "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -50,8 +49,8 @@ func (p *ProdServ) AddProduct(ctx context.Context, products models.Product) (str
 		TrackingNumber: products.TrackingNumber,
 		SellerName:     products.SellerName,
 		SellerAddress:  products.SellerAddress,
-		DateOrdered:    time.Now().UTC(),
-		DateReceived:   time.Now().UTC(),
+		DateOrdered:    products.DateOrdered,
+		DateReceived:   products.DateReceived,
 		ModeOfPayment:  products.ModeOfPayment,
 		StockCount:     products.StockCount,
 	}
