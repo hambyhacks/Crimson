@@ -12,8 +12,8 @@ func TestValidation(t *testing.T) {
 	p := models.Product{
 		TrackingNumber: "JTXPH000000000000",
 		Name:           "Test product",
-		DateOrdered:    "2022-05-30",
-		DateReceived:   "2022-06-30",
+		DateOrdered:    "May 30 2022 13:00",
+		DateReceived:   "June 30 2022 15:00",
 	}
 
 	err := service.Validate(p)
