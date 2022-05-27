@@ -63,9 +63,9 @@ func NewHTTPHandler(prodsvc prodsrv.ProductService) *chi.Mux {
 				r.Group(func(r chi.Router) {
 					r.Method(http.MethodGet, "/products", GetAllProductsHandler)
 					r.Method(http.MethodGet, "/products/{id:[0-9]+}", GetProductByIDHandler)
-					r.Method(http.MethodDelete, "/products/delete/{id:[0-9]+}", DeleteProductHandler)
-					r.Method(http.MethodPost, "/products/add", AddProductHandler)
-					r.Method(http.MethodPatch, "/products/update/{id:[0-9]+}", UpdateProductHandler)
+					r.Method(http.MethodDelete, "/products/{id:[0-9]+}", DeleteProductHandler)
+					r.Method(http.MethodPost, "/products", AddProductHandler)
+					r.Method(http.MethodPut, "/products/{id:[0-9]+}", UpdateProductHandler)
 				})
 			})
 		})
