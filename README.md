@@ -14,7 +14,7 @@ Features:
 - [ ] Add `Authentication` service in project.
 - [ ] Create tests.
 - [ ] Add Email sender function.
-- [ ] Add Date Validation when sending `Add/Update` product request.
+- [x] Add Date Validation when sending `Add/Update` product request.
 
 ## Changes
 
@@ -31,3 +31,15 @@ Features:
 5/25/2022
 
 - Removed colorized outputs for logging and used `level` for debugging logs.
+
+5/26/2022
+
+- Added `datetime` field validation to product struct.
+
+5/27/2022
+
+- Implemented date validation in `Add/Update Product` query.
+
+- Added abstraction layer to http routes in `http.go` for the users using the API. User needs to specify HTTP method to be used for the endpoints to do `CRUD` functions.
+
+- Updated migrations for `prod_svc` database.
