@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -93,7 +92,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	prod := models.Product{}
 	var res []interface{}
 	q := `SELECT 
-		  id, product_name, declared_price, shipping_fee, 
+		  product_name, declared_price, shipping_fee, 
 		  tracking_number, seller_name,
 		  seller_address, date_ordered, date_received,
 		  payment_mode, stock_count 
@@ -112,7 +111,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&prod.ID, &prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
+		err = rows.Scan(&prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
 		if err != nil {
 			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
@@ -159,8 +158,8 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 		products.TrackingNumber,
 		products.SellerName,
 		products.SellerAddress,
-		time.Now().UTC(),
-		time.Now().UTC(),
+		products.DateOrdered,
+		products.DateReceived,
 		products.ModeOfPayment,
 		products.StockCount,
 		products.ID,

@@ -81,7 +81,7 @@ func (p *ProdServ) GetAllProducts(ctx context.Context) (interface{}, error) {
 	var product interface{}
 	logger := klog.With(p.logger, "method", "get all products")
 
-	level.Debug(logger).Log("endpoint", "/v1/admin/products/products")
+	level.Debug(logger).Log("endpoint", "/v1/admin/products")
 	product, err := p.repo.GetAllProducts(ctx)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
@@ -93,7 +93,7 @@ func (p *ProdServ) GetAllProducts(ctx context.Context) (interface{}, error) {
 // GetProductByID implements ProductService
 func (p *ProdServ) GetProductByID(ctx context.Context, id int) (interface{}, error) {
 	logger := klog.With(p.logger, "method", "get product by id")
-	level.Debug(logger).Log("endpoint", "/v1/admin/product"+fmt.Sprintf("/%d", id))
+	level.Debug(logger).Log("endpoint", "/v1/admin/products"+fmt.Sprintf("/%d", id))
 
 	product, err := p.repo.GetProductByID(ctx, id)
 	if err != nil {

@@ -8,6 +8,8 @@ import (
 	"github.com/hambyhacks/CrimsonIMS/internal/data/models"
 )
 
+const dateFormat = "January 2 2006 15:04:05"
+
 func Validate(p models.Product) error {
 	validate := validator.New()
 	validate.RegisterValidation("tracking_number", TrackingNumberValidation)
@@ -30,6 +32,6 @@ func ProductNameValidation(fl validator.FieldLevel) bool {
 }
 
 func DateValidation(fl validator.FieldLevel) bool {
-	_, err := time.Parse("2006-01-02", fl.Field().String())
+	_, err := time.Parse(dateFormat, fl.Field().String())
 	return err == nil
 }

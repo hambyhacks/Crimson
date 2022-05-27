@@ -8,8 +8,8 @@ type Product struct {
 	TrackingNumber string  `json:"tracking_number" validate:"tracking_number,required"`
 	SellerName     string  `json:"seller_name"`
 	SellerAddress  string  `json:"seller_address"`
-	DateOrdered    string  `json:"date_ordered" validate:"datetime=2006-01-02"`
-	DateReceived   string  `json:"date_received" validate:"datetime=2006-01-02"`
+	DateOrdered    string  `json:"date_ordered" validate:"datetime=January 2 2006 15:04"`
+	DateReceived   string  `json:"date_received" validate:"datetime=January 2 2006 15:04"`
 	ModeOfPayment  string  `json:"payment_mode"`
 	StockCount     int     `json:"stock_count"`
 }
