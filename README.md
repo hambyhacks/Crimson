@@ -40,6 +40,6 @@ Features:
 
 - Implemented date validation in `Add/Update Product` query.
 
-- Added abstraction layer to http routes in `http.go` for the users using the API. User needs to specify HTTP method to be used for the endpoints to do `CRUD` functions.
+- Modified the http routes in `http.go` for the users using the API. User needs to specify HTTP method to be used for the endpoints to do `CRUD` functions.
 
 - Updated migrations for `prod_svc` database.
