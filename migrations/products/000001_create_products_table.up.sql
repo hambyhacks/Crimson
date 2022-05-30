@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS products (
-    id BIGSERIAL PRIMARY KEY NOT NULL ,
+    id BIGSERIAL PRIMARY KEY,
     product_name text NOT NULL,
     declared_price real NOT NULL,
     shipping_fee real NOT NULL,
