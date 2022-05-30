@@ -39,11 +39,10 @@ func NewProdRepo(db *sql.DB, logger log.Logger) (ProductsRepository, error) {
 // AddProduct implements ProductsRepository
 func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) error {
 	q := `INSERT INTO products
-		  (id, product_name, declared_price, shipping_fee, tracking_number, seller_name, seller_address, 
+		  (product_name, declared_price, shipping_fee, tracking_number, seller_name, seller_address, 
 		   date_ordered, date_received, payment_mode, stock_count)
-		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 	args := []interface{}{
-		&products.ID,
 		&products.Name,
 		&products.DeclaredPrice,
 		&products.ShippingFee,
@@ -84,6 +83,18 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 			return RequestErr, ErrRepo
 		}
 	}
+
+	_, err = r.db.ExecContext(ctx, " ALTER SEQUENCE products_id_seq RESTART; UPDATE products SET id = DEFAULT")
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrNotFound
+		default:
+			level.Error(r.logger).Log("repository-error", err)
+			return RequestErr, ErrRepo
+		}
+	}
 	return RequestSuccess, nil
 }
 
@@ -92,7 +103,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	prod := models.Product{}
 	var res []interface{}
 	q := `SELECT 
-		  product_name, declared_price, shipping_fee, 
+		  id,product_name, declared_price, shipping_fee, 
 		  tracking_number, seller_name,
 		  seller_address, date_ordered, date_received,
 		  payment_mode, stock_count 
@@ -111,7 +122,7 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
+		err = rows.Scan(&prod.ID, &prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
 		if err != nil {
 			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
