@@ -16,6 +16,9 @@ Features:
 - [ ] Add Email sender function.
 - [x] <strike>Add Date Validation when sending `Add/Update`  product request. </strike>
 - [ ] Add filtering, sorting and pagination to the API.
+- [ ] Error check on duplicate entries in database.
+- [ ] Implement full-text search for fetching records in database.
+- [ ] Replace `Delete using id` with `Delete using product name search`.
 
 ### Changes
 
@@ -50,3 +53,7 @@ Features:
 - Added sequence reset in `DeleteProduct()` function for `id` column since it is the `primary key`.
 
 - Removed `NOT NULL` in `primary key` query on `create_products_table_up` migration file. (*outputs error in inserting product in database.*)
+
+#### 5/31/2022
+
+- Roughly added insert check when adding records to database (*see repo.go: line 41*).
