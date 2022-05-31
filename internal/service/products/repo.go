@@ -38,10 +38,12 @@ func NewProdRepo(db *sql.DB, logger log.Logger) (ProductsRepository, error) {
 
 // AddProduct implements ProductsRepository
 func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) error {
-	q := `INSERT INTO products
+	insertQuery := `INSERT INTO products
 		  (product_name, declared_price, shipping_fee, tracking_number, seller_name, seller_address, 
-		   date_ordered, date_received, payment_mode, stock_count)
-		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+		  date_ordered, date_received, payment_mode, stock_count)
+		  SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 
+		  WHERE NOT EXISTS (SELECT product_name FROM products WHERE product_name = $11)`
+
 	args := []interface{}{
 		&products.Name,
 		&products.DeclaredPrice,
@@ -53,9 +55,10 @@ func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) erro
 		&products.DateReceived,
 		&products.ModeOfPayment,
 		&products.StockCount,
+		&products.Name,
 	}
 
-	_, err := r.db.ExecContext(ctx, q, args...)
+	_, err := r.db.ExecContext(ctx, insertQuery, args...)
 	if err != nil {
 		level.Error(r.logger).Log("repository-error", err)
 		return ErrRepo
@@ -84,7 +87,7 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 		}
 	}
 
-	_, err = r.db.ExecContext(ctx, " ALTER SEQUENCE products_id_seq RESTART; UPDATE products SET id = DEFAULT")
+	_, err = r.db.ExecContext(ctx, "SELECT setval('products_id_seq',max(id)) FROM products")
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
