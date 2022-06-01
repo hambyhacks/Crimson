@@ -57,3 +57,7 @@ Features:
 #### 5/31/2022
 
 - Roughly added insert check when adding records to database (*see repo.go: line 41*).
+
+#### 6/1/2022
+
+- Added `ON CONFLICT DO NOTHING` on `Add product` query. (*better insert    check*)
