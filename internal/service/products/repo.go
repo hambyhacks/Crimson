@@ -13,10 +13,12 @@ import (
 
 // Repo messages
 var (
-	ErrRepo        = errors.New("unable to process database request")
-	ErrNotFound    = errors.New("product not found")
-	RequestErr     = "unable to process database request"
-	RequestSuccess = "success"
+	ErrRepo           = errors.New("unable to process database request")
+	ErrNotFound       = errors.New("product not found")
+	ErrDuplicateEntry = errors.New("duplicate entry")
+	ErrSeqReset       = errors.New("unable to reset sequence")
+	RequestErr        = "unable to process database request"
+	RequestSuccess    = "success"
 )
 
 type ProductsRepository interface {
@@ -38,11 +40,11 @@ func NewProdRepo(db *sql.DB, logger log.Logger) (ProductsRepository, error) {
 
 // AddProduct implements ProductsRepository
 func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) error {
-	insertQuery := `INSERT INTO products
+	q := `INSERT INTO products
 		  (product_name, declared_price, shipping_fee, tracking_number, seller_name, seller_address, 
 		  date_ordered, date_received, payment_mode, stock_count)
-		  SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 
-		  WHERE NOT EXISTS (SELECT product_name FROM products WHERE product_name = $11)`
+		  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+		  ON CONFLICT (product_name) DO NOTHING`
 
 	args := []interface{}{
 		&products.Name,
@@ -55,10 +57,9 @@ func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) erro
 		&products.DateReceived,
 		&products.ModeOfPayment,
 		&products.StockCount,
-		&products.Name,
 	}
 
-	_, err := r.db.ExecContext(ctx, insertQuery, args...)
+	_, err := r.db.ExecContext(ctx, q, args...)
 	if err != nil {
 		level.Error(r.logger).Log("repository-error", err)
 		return ErrRepo
@@ -89,14 +90,8 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 
 	_, err = r.db.ExecContext(ctx, "SELECT setval('products_id_seq',max(id)) FROM products")
 	if err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			level.Error(r.logger).Log("repository-error", err)
-			return RequestErr, ErrNotFound
-		default:
-			level.Error(r.logger).Log("repository-error", err)
-			return RequestErr, ErrRepo
-		}
+		level.Error(r.logger).Log("repository-error", err)
+		return RequestErr, ErrSeqReset
 	}
 	return RequestSuccess, nil
 }
