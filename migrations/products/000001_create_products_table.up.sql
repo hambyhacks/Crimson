@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS products (
     id BIGSERIAL PRIMARY KEY,
-    product_name text NOT NULL,
+    product_name text,
     declared_price real NOT NULL,
     shipping_fee real NOT NULL,
     tracking_number VARCHAR(255) NOT NULL,
@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS products (
     date_ordered timestamp(0) with time zone NOT NULL DEFAULT NOW(),
     date_received timestamp(0) with time zone NOT NULL DEFAULT NOW(),
     payment_mode VARCHAR(255) NOT NULL,
-    stock_count BIGINT NOT NULL
+    stock_count BIGINT NOT NULL,
+    UNIQUE(product_name)
 );

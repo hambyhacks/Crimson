@@ -1,0 +1,1 @@
+SELECT setval('products_id_seq',max(id)) FROM products;
