@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	klog "github.com/go-kit/log"
@@ -18,10 +17,6 @@ type ProductService interface {
 	UpdateProduct(ctx context.Context, products models.Product) (string, error)
 	DeleteProduct(ctx context.Context, id int) (string, error)
 }
-
-var (
-	ErrService = errors.New("service error")
-)
 
 // Implementation of Product Service interface
 type ProdServ struct {
@@ -58,7 +53,7 @@ func (p *ProdServ) AddProduct(ctx context.Context, products models.Product) (str
 	err := p.repo.AddProduct(ctx, prodDetails)
 	if err != nil {
 		level.Error(logger).Log("repository-err", err)
-		return RequestErr, ErrService
+		return RequestErr, err
 	}
 	return RequestSuccess, nil
 }
@@ -71,7 +66,7 @@ func (p *ProdServ) DeleteProduct(ctx context.Context, id int) (string, error) {
 	msg, err := p.repo.DeleteProduct(ctx, id)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return RequestErr, ErrService
+		return RequestErr, err
 	}
 	return msg, nil
 }
@@ -85,7 +80,7 @@ func (p *ProdServ) GetAllProducts(ctx context.Context) (interface{}, error) {
 	product, err := p.repo.GetAllProducts(ctx)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return RequestErr, ErrService
+		return RequestErr, err
 	}
 	return product, nil
 }
@@ -98,7 +93,7 @@ func (p *ProdServ) GetProductByID(ctx context.Context, id int) (interface{}, err
 	product, err := p.repo.GetProductByID(ctx, id)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return RequestErr, ErrService
+		return RequestErr, err
 	}
 	return product, nil
 }
@@ -125,7 +120,7 @@ func (p *ProdServ) UpdateProduct(ctx context.Context, products models.Product) (
 	msg, err := p.repo.UpdateProduct(ctx, prodDetails)
 	if err != nil {
 		level.Error(logger).Log("repository-error", err)
-		return RequestErr, ErrService
+		return RequestErr, err
 	}
 	return msg, nil
 }

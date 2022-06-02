@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 
 	"github.com/hambyhacks/CrimsonIMS/internal/data/models"
 )
@@ -61,9 +60,14 @@ func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) erro
 
 	_, err := r.db.ExecContext(ctx, q, args...)
 	if err != nil {
-		level.Error(r.logger).Log("repository-error", err)
 		return ErrRepo
 	}
+
+	_, err = r.db.ExecContext(ctx, "SELECT setval('products_id_seq',max(id)) FROM products")
+	if err != nil {
+		return ErrSeqReset
+	}
+
 	return nil
 }
 
@@ -72,7 +76,6 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 	q := `DELETE FROM products where id = $1`
 	res, err := r.db.ExecContext(ctx, q, id)
 	if err != nil {
-		level.Error(r.logger).Log("repository-error", err)
 		return RequestErr, ErrRepo
 	}
 
@@ -80,17 +83,14 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrNotFound
 		default:
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
 		}
 	}
 
 	_, err = r.db.ExecContext(ctx, "SELECT setval('products_id_seq',max(id)) FROM products")
 	if err != nil {
-		level.Error(r.logger).Log("repository-error", err)
 		return RequestErr, ErrSeqReset
 	}
 	return RequestSuccess, nil
@@ -111,10 +111,8 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrNotFound
 		default:
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
 		}
 	}
@@ -122,7 +120,6 @@ func (r *prodRepo) GetAllProducts(ctx context.Context) (interface{}, error) {
 	for rows.Next() {
 		err = rows.Scan(&prod.ID, &prod.Name, &prod.DeclaredPrice, &prod.ShippingFee, &prod.TrackingNumber, &prod.SellerName, &prod.SellerAddress, &prod.DateOrdered, &prod.DateReceived, &prod.ModeOfPayment, &prod.StockCount)
 		if err != nil {
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
 		}
 		res = append([]interface{}{prod}, res...)
@@ -142,10 +139,8 @@ func (r *prodRepo) GetProductByID(ctx context.Context, id int) (interface{}, err
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrNotFound
 		default:
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
 		}
 	}
@@ -178,10 +173,8 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrNotFound
 		default:
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
 		}
 	}
@@ -190,10 +183,8 @@ func (r *prodRepo) UpdateProduct(ctx context.Context, products models.Product) (
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrNotFound
 		default:
-			level.Error(r.logger).Log("repository-error", err)
 			return RequestErr, ErrRepo
 		}
 	}
