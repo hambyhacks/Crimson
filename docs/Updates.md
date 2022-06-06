@@ -43,3 +43,7 @@
 ## 6/2/2022
 
 - Removed redundant error logging.
+
+## 6/6/2022
+
+- Added `id` check when requesting to delete a product.
