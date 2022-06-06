@@ -73,13 +73,18 @@ func (r *prodRepo) AddProduct(ctx context.Context, products models.Product) erro
 
 // DeleteProduct implements ProductsRepository
 func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
-	q := `DELETE FROM products where id = $1`
+	q := `DELETE FROM products 
+		  WHERE EXISTS (SELECT product_name FROM products WHERE product_name = $1)`
 	res, err := r.db.ExecContext(ctx, q, id)
 	if err != nil {
 		return RequestErr, ErrRepo
 	}
 
-	_, err = res.RowsAffected()
+	sqlres, err := res.RowsAffected()
+	if sqlres == 0 {
+		return RequestErr, ErrNotFound
+	}
+
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -93,6 +98,7 @@ func (r *prodRepo) DeleteProduct(ctx context.Context, id int) (string, error) {
 	if err != nil {
 		return RequestErr, ErrSeqReset
 	}
+
 	return RequestSuccess, nil
 }
 
