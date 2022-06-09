@@ -10,3 +10,11 @@
 - [ ] Implement full-text search for fetching records in database.
 - [ ] Add `product name search` instead of `product id search`.
 - [ ] Correctly implement HTTP status codes in HTTP response.
+
+## Ideas
+
+1. Make URL request for products should not be easily guessed. (*e.g products/1*)
+
+    - add UUID column.
+
+    - product should be searchable using UUID not the primary key id.
